@@ -89,11 +89,6 @@ long HX711::read_average(byte times) {
 	return sum / times;
 }
 
-// EDIT DANIEL
-long HX711::getGramms(byte times) {
-	return (read_average(times) - OFFSET) / SCALE * 1000;
-}
-
 double HX711::get_value(byte times) {
 	return read_average(times) - OFFSET;
 }

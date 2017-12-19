@@ -47,9 +47,6 @@ class HX711
 
 		// returns (read_average() - OFFSET), that is the current value without the tare weight; times = how many readings to do
 		double get_value(byte times = 1);
-		
-		// EDIT DANIEL
-		long getGramms(byte times = 1);
 
 		// returns get_value() divided by SCALE, that is the raw value divided by a value obtained via calibration
 		// times = how many readings to do
