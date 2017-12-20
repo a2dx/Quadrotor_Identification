@@ -139,6 +139,6 @@ void initInterrupt() {
 
 // Init LoadingCell
 void initLoadingCell(){
-  scale.set_scale(-737650);
+  scale.set_scale(-738650);
   scale.tare(); 
 }
