@@ -9,11 +9,12 @@
 
 HX711 scale(WEIGHT_DOUT_PIN, WEIGHT_CLK_PIN);
 
-// This flag needs to be set to start the measurement
-uint8_t recordingFlag = 0;
 
 // This flag will be set if interrupt is triggered
 volatile uint8_t readSensorFLAG = 0;
+
+// Check to record
+ uint8_t recordFLAG = 0;
 
 // This variable counts the interrupts, if it reaches 6, all sensor will be read and the data will be send
 uint8_t rotationPart = 0;
@@ -22,6 +23,8 @@ uint8_t rotationPart = 0;
 byte data[8];
 // temporary variable to store the last measured weight, if the loading cell can not provide new data
 int16_t weight = 0;
+
+uint8_t currentThrottleSet = 0;
 
 void setup() {
 
@@ -49,8 +52,7 @@ void setup() {
 
 void loop() {
 
-  // check if the measurement is active
-  if (recordingFlag == 1) {
+  
     // check if the interrupt triggered
     if (readSensorFLAG == 1) {
       rotationPart++;
@@ -63,21 +65,15 @@ void loop() {
       // Reset flag
       readSensorFLAG = 0;
     }
-  }
+  
 
   // check if start/stop signal is send
   if (Serial.available() > 0) {
-    uint8_t incStatus = Serial.read();
-    // start ate the measurement
-    if (incStatus == 1) {
-      recordingFlag = 1;
+     currentThrottleSet = Serial.read();
+  
       // send initial timestamp
-      processSensorData();
-    }
-    // stop the measurement
-    if (incStatus == 0) {
-      recordingFlag = 0;
-    }
+      //processSensorData();
+  
   }
 }
 
@@ -100,12 +96,16 @@ void processSensorData() {
   data[2] = (int)((timeStamp >> 16) & 0xFF);
   data[3] = (int)((timeStamp >> 24) & 0xFF);
 
-  data[4] = (int)((weight & 0xFF));
-  data[5] = (int)((weight >> 8) & 0xFF);
+  //current Throttle set
+  data[4] = currentThrottleSet;
+ 
+  //weight
+  data[5] = (int)((weight & 0xFF));
+  data[6] = (int)((weight >> 8) & 0xFF);
 
-  data[6] = (int)((current & 0xFF));
-  data[7] = (int)((current >> 8) & 0xFF);
-
+  //current
+  data[7] = (int)((current & 0xFF));
+ 
   // send data
   Serial.write(data, 8);
 }
@@ -115,14 +115,13 @@ void processSensorData() {
  */
 void setReadSensorFlag() {
   
-  // checks if the measurement is active
-  if (recordingFlag == 1) {
+  
     
     // checks if the arduino can process the data, if the arduino is too slow it will activate the beeper
     if (readSensorFLAG == 1) {
       PORTB |= (1 << PB2);
     }
-  }
+
 
   // Set the readSensorFlag to read the sensor data in the main loop
   readSensorFLAG = 1;
