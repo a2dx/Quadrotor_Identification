@@ -72,7 +72,23 @@ void loop() {
      currentThrottleSet = Serial.read();
   
       // send initial timestamp
-      //processSensorData();
+      long timeStamp = micros();
+
+       // write data
+    data[0] = (int)((timeStamp & 0xFF));
+   data[1] = (int)((timeStamp >> 8) & 0xFF);
+    data[2] = (int)((timeStamp >> 16) & 0xFF);
+     data[3] = (int)((timeStamp >> 24) & 0xFF);
+
+    //current Throttle set
+    data[4] = currentThrottleSet;
+ 
+   //weight
+    data[5] = 0;
+    data[6] = 0;
+
+    //current
+    data[7] = 0;
   
   }
 }
